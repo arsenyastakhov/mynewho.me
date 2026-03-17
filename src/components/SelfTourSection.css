@@ -1,0 +1,354 @@
+.self-tour-section {
+  background: white;
+  overflow: hidden;
+}
+
+.tour-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--sp-xl);
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .tour-layout {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.tour-text h2 {
+  font-family: var(--font-display);
+  margin-bottom: var(--sp-sm);
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  letter-spacing: -0.01em;
+}
+
+.tour-subtitle {
+  font-size: 1.25rem;
+  margin-bottom: var(--sp-xl);
+  max-width: 500px;
+}
+
+.steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+}
+
+.step-item {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.step-icon-wrapper {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-full);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.step-content h3 {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.step-content p {
+  font-size: 1rem;
+}
+
+/* Abstract Visual representing the phone app / lock */
+.tour-visual {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem 2rem;
+}
+
+.visual-card {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  aspect-ratio: 9/19;
+  background: var(--text-primary);
+  border-radius: 40px;
+  border: 12px solid #333;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  overflow: hidden;
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.visual-card.success-state {
+  border-color: #1a1a1a;
+  box-shadow: 0 25px 50px -12px rgba(74, 222, 128, 0.2);
+}
+
+.visual-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40%;
+  height: 25px;
+  background: #333;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  z-index: 20;
+}
+
+.chat-interface {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #f4f4f5;
+  color: #18181b;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 28px;
+  overflow: hidden;
+}
+
+.chat-header {
+  padding: 2.5rem 1rem 1rem;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+.chat-contact {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.contact-avatar {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #a1a1aa, #d4d4d8);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.chat-contact span {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #3f3f46;
+}
+
+.chat-body {
+  flex: 1;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  overflow: hidden;
+  justify-content: flex-end;
+  background: #f4f4f5;
+}
+
+.chat-bubble {
+  max-width: 85%;
+  padding: 0.75rem 1rem;
+  border-radius: 1.15rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  position: relative;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.user-bubble {
+  align-self: flex-end;
+  background: #34c759; /* iOS green (SMS) */
+  color: white;
+  border-bottom-right-radius: 0.25rem;
+}
+
+.system-bubble {
+  align-self: flex-start;
+  background: #e5e5ea; /* iOS light gray */
+  color: #000;
+  border-bottom-left-radius: 0.25rem;
+}
+
+.chat-code {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: 0.3rem;
+  margin: 0.75rem 0;
+  text-align: center;
+  color: #18181b;
+  background: white;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.typing-bubble {
+  display: flex;
+  gap: 0.25rem;
+  padding: 1rem 1.25rem;
+  align-items: center;
+  width: fit-content;
+}
+
+.typing-dot {
+  width: 6px;
+  height: 6px;
+  background: #8e8e93;
+  border-radius: 50%;
+  animation: typing 1.4s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typing {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+.chat-bottom-section {
+  display: flex;
+  flex-direction: column;
+  background: #f4f4f5;
+  border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+.chat-input-area {
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 10;
+}
+
+.chat-input-bubble {
+  flex: 1;
+  background: white;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 1.5rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.9rem;
+  color: #18181b;
+  min-height: 2.1rem;
+  display: flex;
+  align-items: center;
+}
+
+.chat-input-placeholder {
+  color: #a1a1aa;
+}
+
+.send-button {
+  width: 26px;
+  height: 26px;
+  background: #34c759;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  transition: all 0.2s;
+}
+
+.send-button.inactive {
+  background: #e5e5ea;
+  color: #a1a1aa;
+}
+
+.keyboard-container {
+  background: #d1d5db;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  overflow: hidden;
+}
+
+.keyboard-row {
+  display: flex;
+  justify-content: center;
+  gap: 0.3rem;
+}
+
+.key {
+  background: white;
+  border-radius: 0.25rem;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #18181b;
+  width: 1.8rem;
+  height: 2.2rem;
+  transition: all 0.1s;
+}
+
+.key.active {
+  background: #a1a1aa;
+  transform: scale(0.95);
+}
+
+.key.special-key {
+  width: 2.5rem;
+  background: #a1a1aa;
+  font-size: 0.75rem;
+}
+
+.key.space-key {
+  width: 9rem;
+}
+
+/* Background Blobs */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  z-index: 0;
+  opacity: 0.5;
+}
+
+.blob-1 {
+  top: 10%;
+  right: 10%;
+  width: 300px;
+  height: 300px;
+  background: rgba(147, 197, 253, 0.4); /* Light blue */
+}
+
+.blob-2 {
+  bottom: 0;
+  left: 20%;
+  width: 250px;
+  height: 250px;
+  background: rgba(190, 242, 100, 0.3); /* Pale green */
+}

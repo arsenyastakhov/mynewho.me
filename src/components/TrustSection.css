@@ -1,0 +1,110 @@
+.trust-header {
+  text-align: center;
+  margin-bottom: var(--sp-xl);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.trust-header h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  letter-spacing: -0.01em;
+}
+
+.trust-header p {
+  font-size: 1.25rem;
+  margin-top: 1rem;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--sp-md);
+  margin-bottom: var(--sp-xxl);
+}
+
+@media (min-width: 640px) {
+  .benefits-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .benefits-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--sp-lg);
+  }
+}
+
+.benefit-card {
+  background: white;
+  padding: var(--sp-lg) var(--sp-md);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  transition: transform 0.3s ease;
+}
+
+.benefit-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+}
+
+.benefit-icon {
+  width: 64px;
+  height: 64px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--sp-md);
+  color: var(--text-primary);
+}
+
+.benefit-title {
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.benefit-desc {
+  font-size: 0.95rem;
+}
+
+/* CTA Banner Area within the Trust Section */
+.cta-banner {
+  background: #ffd109;
+  color: var(--text-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-xl) var(--sp-md);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-banner h2 {
+  font-family: var(--font-display);
+  font-size: clamp(2.7rem, 4.5vw, 3.75rem);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.cta-banner .btn-primary {
+  background: var(--text-primary);
+  color: white;
+  font-size: 1.125rem;
+  padding: 1.25rem 2.5rem;
+  z-index: 10;
+}
+
+.cta-banner .btn-primary:hover {
+  background: var(--accent-hover);
+  transform: scale(1.05);
+}

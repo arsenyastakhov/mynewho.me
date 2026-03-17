@@ -1,0 +1,137 @@
+.listings-header {
+  margin-bottom: var(--sp-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+}
+
+@media (min-width: 900px) {
+  .listings-header {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+}
+
+.listings-title-group h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  margin-bottom: 0.5rem;
+}
+
+.listings-title-group p {
+  color: var(--text-secondary);
+  font-size: 1.125rem;
+}
+
+.listings-filters {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.filter-scroll-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: white;
+  padding: 0.5rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-light);
+  overflow-x: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.filter-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+.filter-label {
+  padding-left: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.filter-pill-group {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.filter-pill {
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-full);
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  background: transparent;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.filter-pill:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.filter-pill.active {
+  background: var(--text-primary);
+  color: white;
+}
+
+.filter-advanced-btn {
+  padding: 0.75rem 1.25rem;
+  display: inline-flex;
+  border-radius: var(--radius-full);
+}
+
+.listings-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--sp-md);
+  min-height: 400px; /* Prevent huge layouts jumping */
+}
+
+@media (min-width: 640px) {
+  .listings-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .listings-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--sp-lg);
+  }
+}
+
+.no-results {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  background: white;
+  border-radius: var(--radius-lg);
+  border: 1px dashed var(--border-light);
+}
+
+.no-results-content {
+  text-align: center;
+  max-width: 400px;
+  padding: var(--sp-md);
+}
+
+.no-results-icon {
+  margin: 0 auto 1.5rem;
+  color: var(--text-secondary);
+  opacity: 0.5;
+}
+
+.no-results h3 {
+  margin-bottom: 0.5rem;
+}
