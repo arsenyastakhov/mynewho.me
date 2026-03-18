@@ -26,6 +26,7 @@
   font-size: 1.25rem;
   color: var(--text-primary);
   text-decoration: none;
+  flex: 0 0 220px;
 }
 
 .logo-icon {
@@ -33,9 +34,9 @@
 }
 
 .logo-image {
-  height: 340px;
-  max-height: 72px;
-  width: auto;
+  width: 180px;
+  max-width: 100%;
+  height: auto;
   display: block;
 }
 
