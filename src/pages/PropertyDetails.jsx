@@ -19,6 +19,7 @@ const PropertyDetails = () => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isGalleryModalOpen, setIsGalleryModalOpen] = useState(false);
   const galleryImages = property?.gallery?.length ? property.gallery : property?.image ? [property.image] : [];
+  const galleryModalImages = [...galleryImages, ...(property?.planImage ? [property.planImage] : [])];
 
   // Scroll to top on mount
   useEffect(() => {
@@ -34,12 +35,12 @@ const PropertyDetails = () => {
         setIsGalleryModalOpen(false);
       }
 
-      if (galleryImages.length > 1 && isGalleryModalOpen && event.key === 'ArrowRight') {
-        setActiveImageIndex((prev) => (prev + 1) % galleryImages.length);
+      if (galleryModalImages.length > 1 && isGalleryModalOpen && event.key === 'ArrowRight') {
+        setActiveImageIndex((prev) => (prev + 1) % galleryModalImages.length);
       }
 
-      if (galleryImages.length > 1 && isGalleryModalOpen && event.key === 'ArrowLeft') {
-        setActiveImageIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
+      if (galleryModalImages.length > 1 && isGalleryModalOpen && event.key === 'ArrowLeft') {
+        setActiveImageIndex((prev) => (prev - 1 + galleryModalImages.length) % galleryModalImages.length);
       }
     };
 
@@ -50,7 +51,7 @@ const PropertyDetails = () => {
       document.body.style.overflow = '';
       window.removeEventListener('keydown', handleEscape);
     };
-  }, [galleryImages.length, isGalleryModalOpen, isTourModalOpen]);
+  }, [galleryModalImages.length, isGalleryModalOpen, isTourModalOpen]);
 
   useEffect(() => {
     setActiveImageIndex(0);
@@ -58,11 +59,11 @@ const PropertyDetails = () => {
   }, [id]);
 
   const goToPreviousImage = () => {
-    setActiveImageIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
+    setActiveImageIndex((prev) => (prev - 1 + galleryModalImages.length) % galleryModalImages.length);
   };
 
   const goToNextImage = () => {
-    setActiveImageIndex((prev) => (prev + 1) % galleryImages.length);
+    setActiveImageIndex((prev) => (prev + 1) % galleryModalImages.length);
   };
 
   const openGalleryModal = (index) => {
@@ -273,6 +274,26 @@ const PropertyDetails = () => {
                 <span>Fast 24-hour approval process</span>
               </div>
             </div>
+
+            {property.planImage && (
+              <div className="plan-card">
+                <div className="plan-card-header">
+                  <span className="tour-modal-kicker">Floor Plan</span>
+                  <h3>See the layout</h3>
+                </div>
+                <button
+                  type="button"
+                  className="plan-card-button"
+                  onClick={() => {
+                    const planIndex = galleryImages.length;
+                    setActiveImageIndex(planIndex);
+                    setIsGalleryModalOpen(true);
+                  }}
+                >
+                  <img src={property.planImage} alt={`${property.address} floor plan`} className="plan-card-image" />
+                </button>
+              </div>
+            )}
           </motion.div>
 
         </div>
@@ -335,12 +356,12 @@ const PropertyDetails = () => {
 
             <div className="gallery-modal-stage">
               <img
-                src={galleryImages[activeImageIndex]}
+                src={galleryModalImages[activeImageIndex]}
                 alt={`${property.address} large view ${activeImageIndex + 1}`}
                 className="gallery-modal-image"
               />
 
-              {galleryImages.length > 1 && (
+              {galleryModalImages.length > 1 && (
                 <>
                   <button type="button" className="gallery-nav prev modal-nav" onClick={goToPreviousImage} aria-label="Previous property image">
                     <ChevronLeft size={24} />
@@ -352,9 +373,9 @@ const PropertyDetails = () => {
               )}
             </div>
 
-            {galleryImages.length > 1 && (
+            {galleryModalImages.length > 1 && (
               <div className="gallery-modal-thumbnails">
-                {galleryImages.map((img, idx) => (
+                {galleryModalImages.map((img, idx) => (
                   <button
                     key={`modal-${img}-${idx}`}
                     type="button"

@@ -5,7 +5,17 @@ export const isCloudinaryConfigured = () => Boolean(
   CLOUDINARY_CLOUD_NAME && CLOUDINARY_UPLOAD_PRESET
 );
 
-export const uploadImageToCloudinary = async (file) => {
+export const getPropertyMediaFolder = (property = {}, variant = 'gallery') => {
+  const rawValue = property.address || property.id || 'untitled-property';
+  const slug = rawValue
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  return `mynewhome/properties/${slug}/${variant}`;
+};
+
+export const uploadImageToCloudinary = async (file, options = {}) => {
   if (!isCloudinaryConfigured()) {
     throw new Error('Cloudinary is not configured yet.');
   }
@@ -13,6 +23,10 @@ export const uploadImageToCloudinary = async (file) => {
   const formData = new FormData();
   formData.append('file', file);
   formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+  if (options.folder) {
+    formData.append('folder', options.folder);
+  }
 
   const response = await fetch(
     `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,

@@ -3,7 +3,7 @@ import { ImagePlus, LoaderCircle, Star, Trash2 } from 'lucide-react';
 import { useProperties } from '../contexts/PropertyContext';
 import { AMENITY_GROUPS, dedupeAmenities } from '../utils/amenities';
 import { buildPropertyStatusFields, getPropertyStatus } from '../utils/propertyStatus';
-import { isCloudinaryConfigured, uploadImageToCloudinary } from '../utils/cloudinary';
+import { getPropertyMediaFolder, isCloudinaryConfigured, uploadImageToCloudinary } from '../utils/cloudinary';
 import './PropertyForm.css';
 
 const PropertyForm = ({ existingProperty, onClose }) => {
@@ -33,6 +33,7 @@ const PropertyForm = ({ existingProperty, onClose }) => {
       shortDescription: '',
       description: '',
       image: '',
+      planImage: '',
       amenities: [],
       gallery: []
     }
@@ -45,6 +46,8 @@ const PropertyForm = ({ existingProperty, onClose }) => {
   const [uploadError, setUploadError] = useState('');
   const [saveError, setSaveError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isGalleryDragActive, setIsGalleryDragActive] = useState(false);
+  const [isPlanDragActive, setIsPlanDragActive] = useState(false);
 
   const galleryItems = useMemo(
     () => Array.from(
@@ -97,21 +100,16 @@ const PropertyForm = ({ existingProperty, onClose }) => {
     }));
   };
 
-  const handleImageUpload = async (event) => {
-    const files = Array.from(event.target.files || []);
-
-    if (!files.length) {
-      return;
-    }
-
+  const uploadGalleryFiles = async (files) => {
     setUploadError('');
     setIsUploadingImages(true);
 
     try {
       const uploadedUrls = [];
+      const galleryFolder = getPropertyMediaFolder(formData, 'gallery');
 
       for (const file of files) {
-        const uploadedUrl = await uploadImageToCloudinary(file);
+        const uploadedUrl = await uploadImageToCloudinary(file, { folder: galleryFolder });
         uploadedUrls.push(uploadedUrl);
       }
 
@@ -126,9 +124,94 @@ const PropertyForm = ({ existingProperty, onClose }) => {
       setUploadError(error.message || 'Something went wrong while uploading.');
     } finally {
       setIsUploadingImages(false);
-      event.target.value = '';
     }
   };
+
+  const handleImageUpload = async (event) => {
+    const files = Array.from(event.target.files || []);
+
+    if (!files.length) {
+      return;
+    }
+
+    await uploadGalleryFiles(files);
+    event.target.value = '';
+  };
+
+  const uploadPlanFile = async (file) => {
+    setUploadError('');
+    setIsUploadingImages(true);
+
+    try {
+      const uploadedUrl = await uploadImageToCloudinary(file, {
+        folder: getPropertyMediaFolder(formData, 'plans'),
+      });
+
+      setFormData((prev) => ({
+        ...prev,
+        planImage: uploadedUrl,
+      }));
+    } catch (error) {
+      setUploadError(error.message || 'Something went wrong while uploading.');
+    } finally {
+      setIsUploadingImages(false);
+    }
+  };
+
+  const handlePlanUpload = async (event) => {
+    const [file] = Array.from(event.target.files || []);
+
+    if (!file) {
+      return;
+    }
+
+    await uploadPlanFile(file);
+    event.target.value = '';
+  };
+
+  const createDropHandlers = (setDragActive, onFilesDropped) => ({
+    onDragEnter: (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (!isCloudinaryConfigured() || isUploadingImages) return;
+      setDragActive(true);
+    },
+    onDragOver: (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (!isCloudinaryConfigured() || isUploadingImages) return;
+      setDragActive(true);
+    },
+    onDragLeave: (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      setDragActive(false);
+    },
+    onDrop: async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      setDragActive(false);
+
+      if (!isCloudinaryConfigured() || isUploadingImages) return;
+
+      const files = Array.from(event.dataTransfer?.files || []).filter((file) =>
+        file.type.startsWith('image/')
+      );
+
+      if (!files.length) {
+        return;
+      }
+
+      await onFilesDropped(files);
+    },
+  });
+
+  const galleryDropHandlers = createDropHandlers(setIsGalleryDragActive, uploadGalleryFiles);
+  const planDropHandlers = createDropHandlers(setIsPlanDragActive, async (files) => {
+    if (files[0]) {
+      await uploadPlanFile(files[0]);
+    }
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -283,7 +366,10 @@ const PropertyForm = ({ existingProperty, onClose }) => {
               </span>
             </div>
 
-            <label className={`upload-dropzone ${!isCloudinaryConfigured() ? 'is-disabled' : ''}`}>
+            <label
+              className={`upload-dropzone ${!isCloudinaryConfigured() ? 'is-disabled' : ''} ${isGalleryDragActive ? 'is-drag-active' : ''}`}
+              {...galleryDropHandlers}
+            >
               <input
                 type="file"
                 accept="image/*"
@@ -296,6 +382,9 @@ const PropertyForm = ({ existingProperty, onClose }) => {
               </span>
               <span className="upload-dropzone-text">
                 {isUploadingImages ? 'Uploading images...' : 'Choose photos to upload'}
+              </span>
+              <span className="upload-dropzone-subtext">
+                or drag and drop images here
               </span>
             </label>
 
@@ -337,6 +426,60 @@ const PropertyForm = ({ existingProperty, onClose }) => {
           <div className="form-group full-width">
             <label>Gallery Image URLs (Comma separated)</label>
             <textarea value={galleryInput} onChange={(e) => setGalleryInput(e.target.value)} rows="3" placeholder="url1, url2, url3..."></textarea>
+          </div>
+
+          <div className="form-group full-width">
+            <div className="media-upload-header">
+              <label>Floor Plan Image</label>
+              <span className="media-upload-note">
+                Upload a separate floor-plan image that appears below the pricing card on the property page.
+              </span>
+            </div>
+
+            <label
+              className={`upload-dropzone ${!isCloudinaryConfigured() ? 'is-disabled' : ''} ${isPlanDragActive ? 'is-drag-active' : ''}`}
+              {...planDropHandlers}
+            >
+              <input
+                type="file"
+                accept="image/*"
+                disabled={!isCloudinaryConfigured() || isUploadingImages}
+                onChange={handlePlanUpload}
+              />
+              <span className="upload-dropzone-icon">
+                {isUploadingImages ? <LoaderCircle size={20} className="spin" /> : <ImagePlus size={20} />}
+              </span>
+              <span className="upload-dropzone-text">
+                {formData.planImage ? 'Replace floor plan image' : 'Upload floor plan image'}
+              </span>
+              <span className="upload-dropzone-subtext">
+                or drag and drop a plan image here
+              </span>
+            </label>
+
+            <input
+              type="url"
+              name="planImage"
+              value={formData.planImage || ''}
+              onChange={handleChange}
+              placeholder="https://..."
+            />
+
+            {formData.planImage && (
+              <div className="plan-image-preview">
+                <img src={formData.planImage} alt="Floor plan preview" className="gallery-manager-image" />
+                <div className="gallery-manager-actions">
+                  <button
+                    type="button"
+                    className="gallery-action-btn danger"
+                    onClick={() => setFormData((prev) => ({ ...prev, planImage: '' }))}
+                  >
+                    <Trash2 size={16} />
+                    Remove plan image
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="form-group full-width">
