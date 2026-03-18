@@ -4,10 +4,8 @@ import { Plus, Edit2, Trash2, X, ShieldAlert, Lock, LogOut, ArrowUpDown } from '
 import { useProperties } from '../contexts/PropertyContext';
 import PropertyForm from '../components/PropertyForm';
 import { getPropertyStatus } from '../utils/propertyStatus';
+import { verifyAdminPassword } from '../utils/propertyApi';
 import './AdminDashboard.css';
-
-// Get password from environment variables (fallback for local dev if missing)
-const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'admin';
 
 const STATUS_SORT_ORDER = {
   'ready-to-move-in': 0,
@@ -16,10 +14,12 @@ const STATUS_SORT_ORDER = {
 };
 
 const AdminDashboard = () => {
-  const { properties, deleteProperty } = useProperties();
+  const { properties, deleteProperty, storageMode, syncError, isSyncing } = useProperties();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [loginError, setLoginError] = useState(false);
+  const [loginMessage, setLoginMessage] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState(null);
   const [sortField, setSortField] = useState('address');
@@ -28,25 +28,42 @@ const AdminDashboard = () => {
   useEffect(() => {
     // Check if previously authenticated in this session
     const authStatus = sessionStorage.getItem('admin_auth');
-    if (authStatus === 'true') {
+    const storedPassword = sessionStorage.getItem('admin_password');
+
+    if (authStatus === 'true' && storedPassword) {
       setIsAuthenticated(true);
     }
   }, []);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (passwordInput === ADMIN_PASSWORD) {
+
+    setIsLoggingIn(true);
+    setLoginError(false);
+    setLoginMessage('');
+
+    try {
+      const isValid = await verifyAdminPassword(passwordInput);
+
+      if (!isValid) {
+        throw new Error('Incorrect password.');
+      }
+
       setIsAuthenticated(true);
-      setLoginError(false);
       sessionStorage.setItem('admin_auth', 'true');
-    } else {
+      sessionStorage.setItem('admin_password', passwordInput);
+    } catch (error) {
       setLoginError(true);
+      setLoginMessage(error.message || 'Incorrect password. Please try again.');
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
     sessionStorage.removeItem('admin_auth');
+    sessionStorage.removeItem('admin_password');
   };
 
   const handleAddNew = () => {
@@ -126,14 +143,16 @@ const AdminDashboard = () => {
             <div className="form-group">
               <input 
                 type="password" 
-                placeholder="Enter password (hint: admin)" 
+                placeholder="Enter password" 
                 value={passwordInput}
                 onChange={(e) => setPasswordInput(e.target.value)}
                 autoFocus
               />
-              {loginError && <span className="login-error-text">Incorrect password. Please try again.</span>}
+              {loginError && <span className="login-error-text">{loginMessage || 'Incorrect password. Please try again.'}</span>}
             </div>
-            <button type="submit" className="btn-primary w-full">Access Dashboard</button>
+            <button type="submit" className="btn-primary w-full" disabled={isLoggingIn}>
+              {isLoggingIn ? 'Checking Access...' : 'Access Dashboard'}
+            </button>
           </form>
         </motion.div>
       </div>
@@ -177,7 +196,15 @@ const AdminDashboard = () => {
 
         <div className="admin-warning">
           <ShieldAlert size={20} className="warning-icon" />
-          <p><strong>Note:</strong> Currently using local browser storage. Changes will persist on this device unless cleared.</p>
+          <p>
+            <strong>Storage:</strong>{' '}
+            {storageMode === 'remote'
+              ? 'Connected to Supabase. Property changes will sync across devices.'
+              : isSyncing
+                ? 'Checking live property storage...'
+                : 'Fallback mode: using local browser storage on this device only.'}
+            {syncError ? ` ${syncError}` : ''}
+          </p>
         </div>
 
         <div className="table-container">

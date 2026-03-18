@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { ImagePlus, LoaderCircle, Star, Trash2 } from 'lucide-react';
 import { useProperties } from '../contexts/PropertyContext';
 import { AMENITY_GROUPS, dedupeAmenities } from '../utils/amenities';
 import { buildPropertyStatusFields, getPropertyStatus } from '../utils/propertyStatus';
+import { isCloudinaryConfigured, uploadImageToCloudinary } from '../utils/cloudinary';
 import './PropertyForm.css';
 
 const PropertyForm = ({ existingProperty, onClose }) => {
@@ -39,6 +41,26 @@ const PropertyForm = ({ existingProperty, onClose }) => {
   const [galleryInput, setGalleryInput] = useState(
     existingProperty ? existingProperty.gallery.join(', ') : ''
   );
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+  const [saveError, setSaveError] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  const galleryItems = useMemo(
+    () => Array.from(
+      new Set(
+        galleryInput
+          .split(',')
+          .map((item) => item.trim())
+          .filter(Boolean)
+      )
+    ),
+    [galleryInput]
+  );
+
+  const syncGallery = (items) => {
+    setGalleryInput(items.join(', '));
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -58,10 +80,68 @@ const PropertyForm = ({ existingProperty, onClose }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const removeGalleryImage = (imageUrl) => {
+    const nextGallery = galleryItems.filter((item) => item !== imageUrl);
+    syncGallery(nextGallery);
+
+    setFormData((prev) => ({
+      ...prev,
+      image: prev.image === imageUrl ? nextGallery[0] || '' : prev.image,
+    }));
+  };
+
+  const setPrimaryImage = (imageUrl) => {
+    setFormData((prev) => ({
+      ...prev,
+      image: imageUrl,
+    }));
+  };
+
+  const handleImageUpload = async (event) => {
+    const files = Array.from(event.target.files || []);
+
+    if (!files.length) {
+      return;
+    }
+
+    setUploadError('');
+    setIsUploadingImages(true);
+
+    try {
+      const uploadedUrls = [];
+
+      for (const file of files) {
+        const uploadedUrl = await uploadImageToCloudinary(file);
+        uploadedUrls.push(uploadedUrl);
+      }
+
+      const nextGallery = [...galleryItems, ...uploadedUrls];
+      syncGallery(nextGallery);
+
+      setFormData((prev) => ({
+        ...prev,
+        image: prev.image || uploadedUrls[0] || nextGallery[0] || '',
+      }));
+    } catch (error) {
+      setUploadError(error.message || 'Something went wrong while uploading.');
+    } finally {
+      setIsUploadingImages(false);
+      event.target.value = '';
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setSaveError('');
+    setIsSaving(true);
 
     // Process lists and numbers before saving
+    const processedGallery = galleryItems;
+    const primaryImage =
+      formData.image ||
+      processedGallery[0] ||
+      'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80';
+
     const processedData = {
       ...formData,
       amenities: dedupeAmenities(formData.amenities),
@@ -71,22 +151,23 @@ const PropertyForm = ({ existingProperty, onClose }) => {
       bathrooms: Number(formData.bathrooms),
       squareFeet: Number(formData.squareFeet),
       garage: Number(formData.garage),
-      gallery: galleryInput.split(',').map(s => s.trim()).filter(Boolean),
+      image: primaryImage,
+      gallery: processedGallery.length ? processedGallery : [primaryImage],
     };
 
-    if (isEditing) {
-      updateProperty(existingProperty.id, processedData);
-    } else {
-      addProperty(processedData);
-    }
-    
-    // Default fallback image if none provided
-    if (!processedData.image) {
-       processedData.image = 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80';
-       processedData.gallery = [processedData.image];
-    }
+    try {
+      if (isEditing) {
+        await updateProperty(existingProperty.id, processedData);
+      } else {
+        await addProperty(processedData);
+      }
 
-    onClose();
+      onClose();
+    } catch (error) {
+      setSaveError(error.message || 'Unable to save this property right now.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -193,6 +274,67 @@ const PropertyForm = ({ existingProperty, onClose }) => {
           </div>
 
           <div className="form-group full-width">
+            <div className="media-upload-header">
+              <label>Upload Photos</label>
+              <span className="media-upload-note">
+                {isCloudinaryConfigured()
+                  ? 'Upload straight to Cloudinary and use the first photo or choose a cover.'
+                  : 'Add VITE_CLOUDINARY_CLOUD_NAME and VITE_CLOUDINARY_UPLOAD_PRESET to enable uploads.'}
+              </span>
+            </div>
+
+            <label className={`upload-dropzone ${!isCloudinaryConfigured() ? 'is-disabled' : ''}`}>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                disabled={!isCloudinaryConfigured() || isUploadingImages}
+                onChange={handleImageUpload}
+              />
+              <span className="upload-dropzone-icon">
+                {isUploadingImages ? <LoaderCircle size={20} className="spin" /> : <ImagePlus size={20} />}
+              </span>
+              <span className="upload-dropzone-text">
+                {isUploadingImages ? 'Uploading images...' : 'Choose photos to upload'}
+              </span>
+            </label>
+
+            {uploadError && <p className="upload-error">{uploadError}</p>}
+
+            {galleryItems.length > 0 && (
+              <div className="gallery-manager">
+                {galleryItems.map((imageUrl) => {
+                  const isPrimary = formData.image === imageUrl;
+
+                  return (
+                    <div key={imageUrl} className="gallery-manager-item">
+                      <img src={imageUrl} alt="Property upload" className="gallery-manager-image" />
+                      <div className="gallery-manager-actions">
+                        <button
+                          type="button"
+                          className={`gallery-action-btn ${isPrimary ? 'is-active' : ''}`}
+                          onClick={() => setPrimaryImage(imageUrl)}
+                        >
+                          <Star size={16} />
+                          {isPrimary ? 'Cover photo' : 'Set as cover'}
+                        </button>
+                        <button
+                          type="button"
+                          className="gallery-action-btn danger"
+                          onClick={() => removeGalleryImage(imageUrl)}
+                        >
+                          <Trash2 size={16} />
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          <div className="form-group full-width">
             <label>Gallery Image URLs (Comma separated)</label>
             <textarea value={galleryInput} onChange={(e) => setGalleryInput(e.target.value)} rows="3" placeholder="url1, url2, url3..."></textarea>
           </div>
@@ -222,8 +364,11 @@ const PropertyForm = ({ existingProperty, onClose }) => {
         </div>
 
         <div className="form-actions">
+          {saveError && <p className="save-error">{saveError}</p>}
           <button type="button" className="btn-secondary" onClick={onClose}>Cancel</button>
-          <button type="submit" className="btn-primary">Save Property</button>
+          <button type="submit" className="btn-primary" disabled={isSaving}>
+            {isSaving ? 'Saving...' : 'Save Property'}
+          </button>
         </div>
 
       </form>

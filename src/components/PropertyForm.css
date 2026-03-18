@@ -151,6 +151,131 @@
   margin-bottom: 0;
 }
 
+.media-upload-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.media-upload-note {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.upload-dropzone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 64px;
+  padding: 1rem 1.2rem;
+  border: 1px dashed rgba(0, 0, 0, 0.18);
+  border-radius: var(--radius-md);
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.upload-dropzone:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.upload-dropzone.is-disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.upload-dropzone input {
+  display: none;
+}
+
+.upload-dropzone-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.upload-dropzone-text {
+  font-weight: 600;
+}
+
+.upload-error {
+  margin: 0;
+  color: #b42318;
+  font-size: 0.9rem;
+}
+
+.save-error {
+  margin: 0 auto 0 0;
+  color: #b42318;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.gallery-manager {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.gallery-manager-item {
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  background: white;
+}
+
+.gallery-manager-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.gallery-manager-actions {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.85rem;
+}
+
+.gallery-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-full);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.gallery-action-btn.is-active {
+  background: #111;
+  color: white;
+  border-color: #111;
+}
+
+.gallery-action-btn.danger {
+  color: #b42318;
+}
+
+.spin {
+  animation: property-form-spin 0.9s linear infinite;
+}
+
+@keyframes property-form-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .amenity-groups {
   display: flex;
   flex-direction: column;
@@ -201,9 +326,21 @@
   }
 }
 
+@media (max-width: 639px) {
+  .gallery-manager {
+    grid-template-columns: 1fr;
+  }
+
+  .gallery-manager-actions {
+    flex-direction: column;
+  }
+}
+
 .form-actions {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 1rem;
   padding-top: var(--sp-md);
   border-top: 1px solid var(--border-light);
