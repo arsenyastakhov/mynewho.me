@@ -33,7 +33,7 @@
 }
 
 .logo-image {
-  height: 72px; /* 50% larger again than the current header logo */
+  height: 34px;
   width: auto;
   display: block;
 }

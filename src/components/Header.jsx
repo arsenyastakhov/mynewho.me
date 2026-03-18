@@ -12,8 +12,8 @@ const Header = () => {
     <header className="header">
       <div className="container header-container">
         <Link to="/" className="logo">
-          <img src="/assets/logo.png" alt="MyNewHome Logo" className="logo-image" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'inline-block'; }} />
-          <span className="logo-text fallback-text" style={{ display: 'none' }}>MyNewHome</span>
+          <img src="/assets/logo-wordmark-2026.png" alt="mynewho.me" className="logo-image" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'inline-block'; }} />
+          <span className="logo-text fallback-text" style={{ display: 'none' }}>mynewho.me</span>
         </Link>
         <nav className="nav-menu">
           <a href={getSectionHref('listings')} className="nav-link">Available Homes</a>
