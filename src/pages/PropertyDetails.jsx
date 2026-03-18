@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MapPin, BedDouble, Bath, Square, Car, CheckCircle2, ChevronLeft, Phone, Calendar, TriangleAlert, X } from 'lucide-react';
+import { MapPin, BedDouble, Bath, Square, Car, CheckCircle2, ChevronLeft, ChevronRight, Phone, Calendar, TriangleAlert, X } from 'lucide-react';
 import { useProperties } from '../contexts/PropertyContext';
 import { groupAmenities } from '../utils/amenities';
 import { getPropertyStatus } from '../utils/propertyStatus';
@@ -16,6 +16,9 @@ const PropertyDetails = () => {
   const status = getPropertyStatus(property);
   const groupedAmenities = groupAmenities(property?.amenities);
   const [isTourModalOpen, setIsTourModalOpen] = useState(false);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [isGalleryModalOpen, setIsGalleryModalOpen] = useState(false);
+  const galleryImages = property?.gallery?.length ? property.gallery : property?.image ? [property.image] : [];
 
   // Scroll to top on mount
   useEffect(() => {
@@ -23,11 +26,20 @@ const PropertyDetails = () => {
   }, [id]);
 
   useEffect(() => {
-    if (!isTourModalOpen) return undefined;
+    if (!isTourModalOpen && !isGalleryModalOpen) return undefined;
 
     const handleEscape = (event) => {
       if (event.key === 'Escape') {
         setIsTourModalOpen(false);
+        setIsGalleryModalOpen(false);
+      }
+
+      if (galleryImages.length > 1 && isGalleryModalOpen && event.key === 'ArrowRight') {
+        setActiveImageIndex((prev) => (prev + 1) % galleryImages.length);
+      }
+
+      if (galleryImages.length > 1 && isGalleryModalOpen && event.key === 'ArrowLeft') {
+        setActiveImageIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
       }
     };
 
@@ -38,7 +50,25 @@ const PropertyDetails = () => {
       document.body.style.overflow = '';
       window.removeEventListener('keydown', handleEscape);
     };
-  }, [isTourModalOpen]);
+  }, [galleryImages.length, isGalleryModalOpen, isTourModalOpen]);
+
+  useEffect(() => {
+    setActiveImageIndex(0);
+    setIsGalleryModalOpen(false);
+  }, [id]);
+
+  const goToPreviousImage = () => {
+    setActiveImageIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
+  };
+
+  const goToNextImage = () => {
+    setActiveImageIndex((prev) => (prev + 1) % galleryImages.length);
+  };
+
+  const openGalleryModal = (index) => {
+    setActiveImageIndex(index);
+    setIsGalleryModalOpen(true);
+  };
 
   if (!property) {
     return (
@@ -66,29 +96,58 @@ const PropertyDetails = () => {
       {/* Image Gallery */}
       <section className="gallery-section">
         <div className="container">
-          <div className="gallery-grid">
-            <motion.div 
-              className="gallery-main"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <img src={property.gallery[0]} alt="Main view" className="gallery-img" />
-            </motion.div>
-            <div className="gallery-side">
-              {property.gallery.slice(1, 3).map((img, idx) => (
-                <motion.div 
-                  key={idx} 
-                  className="gallery-side-item"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.6, delay: 0.2 + (idx * 0.1) }}
-                >
-                  <img src={img} alt={`View ${idx + 2}`} className="gallery-img" />
-                </motion.div>
-              ))}
+          <motion.div
+            className="property-gallery-shell"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="gallery-stage">
+              <button
+                type="button"
+                className="gallery-stage-button"
+                onClick={() => openGalleryModal(activeImageIndex)}
+              >
+                <img
+                  src={galleryImages[activeImageIndex]}
+                  alt={`${property.address} view ${activeImageIndex + 1}`}
+                  className="gallery-stage-image"
+                />
+              </button>
+
+              {galleryImages.length > 1 && (
+                <>
+                  <button type="button" className="gallery-nav prev" onClick={goToPreviousImage} aria-label="Previous property image">
+                    <ChevronLeft size={22} />
+                  </button>
+                  <button type="button" className="gallery-nav next" onClick={goToNextImage} aria-label="Next property image">
+                    <ChevronRight size={22} />
+                  </button>
+                </>
+              )}
+
+              <div className="gallery-counter">
+                {activeImageIndex + 1} / {galleryImages.length}
+              </div>
             </div>
-          </div>
+
+            {galleryImages.length > 1 && (
+              <div className="gallery-thumbnails" role="tablist" aria-label="Property photo thumbnails">
+                {galleryImages.map((img, idx) => (
+                  <button
+                    key={`${img}-${idx}`}
+                    type="button"
+                    className={`gallery-thumb ${idx === activeImageIndex ? 'is-active' : ''}`}
+                    onClick={() => setActiveImageIndex(idx)}
+                    aria-label={`Show image ${idx + 1}`}
+                    aria-pressed={idx === activeImageIndex}
+                  >
+                    <img src={img} alt={`${property.address} thumbnail ${idx + 1}`} className="gallery-thumb-image" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </motion.div>
         </div>
       </section>
 
@@ -256,6 +315,58 @@ const PropertyDetails = () => {
                 </button>
               </div>
             </div>
+          </motion.div>
+        </div>
+      )}
+
+      {isGalleryModalOpen && (
+        <div className="gallery-modal-overlay" onClick={() => setIsGalleryModalOpen(false)}>
+          <motion.div
+            className="gallery-modal"
+            initial={{ opacity: 0, y: 24, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 24, scale: 0.98 }}
+            transition={{ duration: 0.2 }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button className="gallery-modal-close" onClick={() => setIsGalleryModalOpen(false)} aria-label="Close image gallery">
+              <X size={20} />
+            </button>
+
+            <div className="gallery-modal-stage">
+              <img
+                src={galleryImages[activeImageIndex]}
+                alt={`${property.address} large view ${activeImageIndex + 1}`}
+                className="gallery-modal-image"
+              />
+
+              {galleryImages.length > 1 && (
+                <>
+                  <button type="button" className="gallery-nav prev modal-nav" onClick={goToPreviousImage} aria-label="Previous property image">
+                    <ChevronLeft size={24} />
+                  </button>
+                  <button type="button" className="gallery-nav next modal-nav" onClick={goToNextImage} aria-label="Next property image">
+                    <ChevronRight size={24} />
+                  </button>
+                </>
+              )}
+            </div>
+
+            {galleryImages.length > 1 && (
+              <div className="gallery-modal-thumbnails">
+                {galleryImages.map((img, idx) => (
+                  <button
+                    key={`modal-${img}-${idx}`}
+                    type="button"
+                    className={`gallery-thumb ${idx === activeImageIndex ? 'is-active' : ''}`}
+                    onClick={() => setActiveImageIndex(idx)}
+                    aria-label={`Show image ${idx + 1}`}
+                  >
+                    <img src={img} alt={`${property.address} modal thumbnail ${idx + 1}`} className="gallery-thumb-image" />
+                  </button>
+                ))}
+              </div>
+            )}
           </motion.div>
         </div>
       )}
