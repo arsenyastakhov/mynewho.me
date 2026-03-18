@@ -3,6 +3,12 @@
   publish = "dist"
 
 [[redirects]]
+  from = "https://rent.mynewho.me/*"
+  to = "https://www.mynewho.me/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
