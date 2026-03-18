@@ -106,19 +106,20 @@
 
 .gallery-thumb {
   padding: 0;
-  border: 2px solid transparent;
+  border: 1px solid rgba(17, 17, 17, 0.08);
   border-radius: var(--radius-md);
   overflow: hidden;
-  background: transparent;
+  background: white;
   cursor: pointer;
   opacity: 0.72;
-  transition: opacity 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  transition: opacity 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .gallery-thumb:hover,
 .gallery-thumb.is-active {
   opacity: 1;
-  border-color: var(--text-primary);
+  border-color: rgba(17, 17, 17, 0.45);
+  box-shadow: 0 0 0 1px rgba(17, 17, 17, 0.08);
   transform: translateY(-1px);
 }
 
@@ -336,23 +337,32 @@
   line-height: 1.7;
 }
 
-.floor-plan-link {
-  margin-top: 1.25rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.9rem 1.35rem;
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-full);
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  font-weight: 600;
-  transition: transform 0.2s ease, border-color 0.2s ease;
+.stat-item-button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
 }
 
-.floor-plan-link:hover {
+.floor-plan-stat {
+  align-items: center;
+  padding: 0.3rem 0.8rem;
+  border-radius: var(--radius-full);
+  background: #fff7d1;
+  color: var(--text-primary);
+  font-weight: 600;
+  border: 1px solid rgba(234, 179, 8, 0.45);
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.floor-plan-stat:hover {
   transform: translateY(-1px);
-  border-color: var(--text-primary);
+  border-color: rgba(17, 17, 17, 0.28);
+  background: #ffe782;
+}
+
+.floor-plan-stat span {
+  font-size: 1.125rem;
 }
 
 .amenities-list {

@@ -181,6 +181,11 @@ const PropertyDetails = () => {
                 <div className="stat-item"><Bath size={24} /> <span>{property.bathrooms} Baths</span></div>
                 <div className="stat-item"><Square size={24} /> <span>{property.squareFeet.toLocaleString()} sqft</span></div>
                 <div className="stat-item"><Car size={24} /> <span>{property.garage} Car Garage</span></div>
+                {property.planImage && (
+                  <button type="button" className="stat-item stat-item-button floor-plan-stat" onClick={() => setIsPlanModalOpen(true)}>
+                    <span>Floor Plan</span>
+                  </button>
+                )}
               </div>
             </motion.div>
 
@@ -192,11 +197,6 @@ const PropertyDetails = () => {
             >
               <h2>About this home</h2>
               <p>{property.description}</p>
-              {property.planImage && (
-                <button type="button" className="floor-plan-link" onClick={() => setIsPlanModalOpen(true)}>
-                  Floor Plan
-                </button>
-              )}
             </motion.div>
 
             <motion.div 

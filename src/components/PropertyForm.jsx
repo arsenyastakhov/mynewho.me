@@ -48,6 +48,8 @@ const PropertyForm = ({ existingProperty, onClose }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [isGalleryDragActive, setIsGalleryDragActive] = useState(false);
   const [isPlanDragActive, setIsPlanDragActive] = useState(false);
+  const [isAdvancedMediaOpen, setIsAdvancedMediaOpen] = useState(false);
+  const [draggedGalleryImage, setDraggedGalleryImage] = useState('');
 
   const galleryItems = useMemo(
     () => Array.from(
@@ -98,6 +100,24 @@ const PropertyForm = ({ existingProperty, onClose }) => {
       ...prev,
       image: imageUrl,
     }));
+  };
+
+  const reorderGalleryImages = (draggedImage, targetImage) => {
+    if (!draggedImage || !targetImage || draggedImage === targetImage) {
+      return;
+    }
+
+    const nextGallery = [...galleryItems];
+    const fromIndex = nextGallery.indexOf(draggedImage);
+    const toIndex = nextGallery.indexOf(targetImage);
+
+    if (fromIndex === -1 || toIndex === -1) {
+      return;
+    }
+
+    nextGallery.splice(fromIndex, 1);
+    nextGallery.splice(toIndex, 0, draggedImage);
+    syncGallery(nextGallery);
   };
 
   const uploadGalleryFiles = async (files) => {
@@ -352,11 +372,6 @@ const PropertyForm = ({ existingProperty, onClose }) => {
           </div>
 
           <div className="form-group full-width">
-            <label>Primary Image URL</label>
-            <input type="url" name="image" value={formData.image} onChange={handleChange} placeholder="https://..." />
-          </div>
-
-          <div className="form-group full-width">
             <div className="media-upload-header">
               <label>Upload Photos</label>
               <span className="media-upload-note">
@@ -396,7 +411,19 @@ const PropertyForm = ({ existingProperty, onClose }) => {
                   const isPrimary = formData.image === imageUrl;
 
                   return (
-                    <div key={imageUrl} className="gallery-manager-item">
+                    <div
+                      key={imageUrl}
+                      className={`gallery-manager-item ${draggedGalleryImage === imageUrl ? 'is-dragging' : ''}`}
+                      draggable
+                      onDragStart={() => setDraggedGalleryImage(imageUrl)}
+                      onDragEnd={() => setDraggedGalleryImage('')}
+                      onDragOver={(event) => event.preventDefault()}
+                      onDrop={(event) => {
+                        event.preventDefault();
+                        reorderGalleryImages(draggedGalleryImage, imageUrl);
+                        setDraggedGalleryImage('');
+                      }}
+                    >
                       <img src={imageUrl} alt="Property upload" className="gallery-manager-image" />
                       <div className="gallery-manager-actions">
                         <button
@@ -421,11 +448,6 @@ const PropertyForm = ({ existingProperty, onClose }) => {
                 })}
               </div>
             )}
-          </div>
-
-          <div className="form-group full-width">
-            <label>Gallery Image URLs (Comma separated)</label>
-            <textarea value={galleryInput} onChange={(e) => setGalleryInput(e.target.value)} rows="3" placeholder="url1, url2, url3..."></textarea>
           </div>
 
           <div className="form-group full-width">
@@ -481,6 +503,30 @@ const PropertyForm = ({ existingProperty, onClose }) => {
               </div>
             )}
           </div>
+
+          <div className="form-group full-width">
+            <button
+              type="button"
+              className="advanced-toggle"
+              onClick={() => setIsAdvancedMediaOpen((prev) => !prev)}
+            >
+              {isAdvancedMediaOpen ? 'Hide advanced media options' : 'Show advanced media options'}
+            </button>
+          </div>
+
+          {isAdvancedMediaOpen && (
+            <>
+              <div className="form-group full-width">
+                <label>Primary Image URL</label>
+                <input type="url" name="image" value={formData.image} onChange={handleChange} placeholder="https://..." />
+              </div>
+
+              <div className="form-group full-width">
+                <label>Gallery Image URLs (Comma separated)</label>
+                <textarea value={galleryInput} onChange={(e) => setGalleryInput(e.target.value)} rows="3" placeholder="url1, url2, url3..."></textarea>
+              </div>
+            </>
+          )}
 
           <div className="form-group full-width">
             <label>Amenities</label>
