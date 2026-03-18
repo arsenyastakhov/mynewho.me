@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MapPin, BedDouble, Bath, Square, Car, CheckCircle2, ChevronLeft, ChevronRight, Phone, Calendar, TriangleAlert, X } from 'lucide-react';
+import { MapPin, BedDouble, Bath, Square, Car, CheckCircle2, ChevronLeft, ChevronRight, Calendar, TriangleAlert, X } from 'lucide-react';
 import { useProperties } from '../contexts/PropertyContext';
 import { groupAmenities } from '../utils/amenities';
 import { getPropertyStatus } from '../utils/propertyStatus';
@@ -18,8 +18,8 @@ const PropertyDetails = () => {
   const [isTourModalOpen, setIsTourModalOpen] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isGalleryModalOpen, setIsGalleryModalOpen] = useState(false);
+  const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
   const galleryImages = property?.gallery?.length ? property.gallery : property?.image ? [property.image] : [];
-  const galleryModalImages = [...galleryImages, ...(property?.planImage ? [property.planImage] : [])];
 
   // Scroll to top on mount
   useEffect(() => {
@@ -27,20 +27,21 @@ const PropertyDetails = () => {
   }, [id]);
 
   useEffect(() => {
-    if (!isTourModalOpen && !isGalleryModalOpen) return undefined;
+    if (!isTourModalOpen && !isGalleryModalOpen && !isPlanModalOpen) return undefined;
 
     const handleEscape = (event) => {
       if (event.key === 'Escape') {
         setIsTourModalOpen(false);
         setIsGalleryModalOpen(false);
+        setIsPlanModalOpen(false);
       }
 
-      if (galleryModalImages.length > 1 && isGalleryModalOpen && event.key === 'ArrowRight') {
-        setActiveImageIndex((prev) => (prev + 1) % galleryModalImages.length);
+      if (galleryImages.length > 1 && isGalleryModalOpen && event.key === 'ArrowRight') {
+        setActiveImageIndex((prev) => (prev + 1) % galleryImages.length);
       }
 
-      if (galleryModalImages.length > 1 && isGalleryModalOpen && event.key === 'ArrowLeft') {
-        setActiveImageIndex((prev) => (prev - 1 + galleryModalImages.length) % galleryModalImages.length);
+      if (galleryImages.length > 1 && isGalleryModalOpen && event.key === 'ArrowLeft') {
+        setActiveImageIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
       }
     };
 
@@ -51,19 +52,20 @@ const PropertyDetails = () => {
       document.body.style.overflow = '';
       window.removeEventListener('keydown', handleEscape);
     };
-  }, [galleryModalImages.length, isGalleryModalOpen, isTourModalOpen]);
+  }, [galleryImages.length, isGalleryModalOpen, isPlanModalOpen, isTourModalOpen]);
 
   useEffect(() => {
     setActiveImageIndex(0);
     setIsGalleryModalOpen(false);
+    setIsPlanModalOpen(false);
   }, [id]);
 
   const goToPreviousImage = () => {
-    setActiveImageIndex((prev) => (prev - 1 + galleryModalImages.length) % galleryModalImages.length);
+    setActiveImageIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
   };
 
   const goToNextImage = () => {
-    setActiveImageIndex((prev) => (prev + 1) % galleryModalImages.length);
+    setActiveImageIndex((prev) => (prev + 1) % galleryImages.length);
   };
 
   const openGalleryModal = (index) => {
@@ -190,6 +192,11 @@ const PropertyDetails = () => {
             >
               <h2>About this home</h2>
               <p>{property.description}</p>
+              {property.planImage && (
+                <button type="button" className="floor-plan-link" onClick={() => setIsPlanModalOpen(true)}>
+                  Floor Plan
+                </button>
+              )}
             </motion.div>
 
             <motion.div 
@@ -264,9 +271,6 @@ const PropertyDetails = () => {
                     Currently Unavailable
                   </button>
                 )}
-                <button className="ghost-btn w-full">
-                  <Phone size={20} /> Request a Call
-                </button>
               </div>
 
               <div className="trust-badge">
@@ -274,26 +278,6 @@ const PropertyDetails = () => {
                 <span>Fast 24-hour approval process</span>
               </div>
             </div>
-
-            {property.planImage && (
-              <div className="plan-card">
-                <div className="plan-card-header">
-                  <span className="tour-modal-kicker">Floor Plan</span>
-                  <h3>See the layout</h3>
-                </div>
-                <button
-                  type="button"
-                  className="plan-card-button"
-                  onClick={() => {
-                    const planIndex = galleryImages.length;
-                    setActiveImageIndex(planIndex);
-                    setIsGalleryModalOpen(true);
-                  }}
-                >
-                  <img src={property.planImage} alt={`${property.address} floor plan`} className="plan-card-image" />
-                </button>
-              </div>
-            )}
           </motion.div>
 
         </div>
@@ -356,12 +340,12 @@ const PropertyDetails = () => {
 
             <div className="gallery-modal-stage">
               <img
-                src={galleryModalImages[activeImageIndex]}
+                src={galleryImages[activeImageIndex]}
                 alt={`${property.address} large view ${activeImageIndex + 1}`}
                 className="gallery-modal-image"
               />
 
-              {galleryModalImages.length > 1 && (
+              {galleryImages.length > 1 && (
                 <>
                   <button type="button" className="gallery-nav prev modal-nav" onClick={goToPreviousImage} aria-label="Previous property image">
                     <ChevronLeft size={24} />
@@ -373,9 +357,9 @@ const PropertyDetails = () => {
               )}
             </div>
 
-            {galleryModalImages.length > 1 && (
+            {galleryImages.length > 1 && (
               <div className="gallery-modal-thumbnails">
-                {galleryModalImages.map((img, idx) => (
+                {galleryImages.map((img, idx) => (
                   <button
                     key={`modal-${img}-${idx}`}
                     type="button"
@@ -388,6 +372,36 @@ const PropertyDetails = () => {
                 ))}
               </div>
             )}
+          </motion.div>
+        </div>
+      )}
+
+      {isPlanModalOpen && property.planImage && (
+        <div className="gallery-modal-overlay" onClick={() => setIsPlanModalOpen(false)}>
+          <motion.div
+            className="gallery-modal plan-modal"
+            initial={{ opacity: 0, y: 24, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 24, scale: 0.98 }}
+            transition={{ duration: 0.2 }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button className="gallery-modal-close" onClick={() => setIsPlanModalOpen(false)} aria-label="Close floor plan">
+              <X size={20} />
+            </button>
+
+            <div className="plan-modal-header">
+              <span className="tour-modal-kicker">Floor Plan</span>
+              <h2>See the layout</h2>
+            </div>
+
+            <div className="gallery-modal-stage plan-modal-stage">
+              <img
+                src={property.planImage}
+                alt={`${property.address} floor plan`}
+                className="gallery-modal-image plan-modal-image"
+              />
+            </div>
           </motion.div>
         </div>
       )}

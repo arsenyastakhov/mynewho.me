@@ -38,7 +38,7 @@ const TrustSection = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            Why rent with MyNewHome?
+            Why rent with us?
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
