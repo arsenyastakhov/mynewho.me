@@ -77,11 +77,12 @@
 
 .filter-pill {
   padding: 0.5rem 1rem;
+  border: 1px solid var(--border-light);
   border-radius: var(--radius-full);
   font-weight: 500;
   font-size: 0.875rem;
   color: var(--text-secondary);
-  background: transparent;
+  background: white;
   transition: all 0.2s ease;
   white-space: nowrap;
 }
@@ -128,20 +129,21 @@
     width: 100%;
     flex-direction: column;
     align-items: stretch;
-    gap: 0.85rem;
+    gap: 0.75rem;
     border-radius: 28px;
-    padding: 1rem;
+    padding: 0.9rem 1rem 1rem;
     overflow: visible;
   }
 
   .filter-block {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
   }
 
   .filter-block-toggle {
-    padding-top: 0.1rem;
+    padding-top: 0.15rem;
+    justify-content: center;
   }
 
   .filter-divider {
@@ -153,9 +155,12 @@
     font-size: 0.8rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+    width: 3.5rem;
+    flex: 0 0 3.5rem;
   }
 
   .filter-pill-group {
+    flex: 1 1 auto;
     flex-wrap: wrap;
     gap: 0.5rem;
   }
@@ -168,9 +173,9 @@
   }
 
   .filter-pill {
-    min-height: 44px;
-    padding: 0.75rem 0.9rem;
-    font-size: 0.95rem;
+    min-height: 40px;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.9rem;
   }
 }
 

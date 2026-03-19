@@ -97,6 +97,10 @@
   z-index: 10;
 }
 
+.cta-banner h2 span {
+  display: inline;
+}
+
 .cta-banner .btn-primary {
   background: var(--text-primary);
   color: white;
@@ -140,6 +144,10 @@
     font-size: clamp(2rem, 11vw, 2.75rem);
     white-space: normal;
     line-height: 0.94;
+  }
+
+  .cta-banner h2 span {
+    display: block;
   }
 
   .cta-banner .btn-primary {

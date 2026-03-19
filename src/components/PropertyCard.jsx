@@ -66,7 +66,7 @@ const PropertyCard = ({ property, index }) => {
         </div>
 
         <div className="card-actions">
-          <Link to={`/property/${property.id}`} className="btn-secondary card-btn">View Details</Link>
+          <Link to={`/property/${property.id}`} className="btn-secondary card-btn">Details</Link>
           <button 
             className="btn-primary card-btn"
             onClick={(e) => {

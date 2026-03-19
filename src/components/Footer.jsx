@@ -12,10 +12,7 @@ const Footer = () => {
     <footer className="footer section-padding">
       <div className="container">
         <div className="footer-grid">
-          
           <div className="footer-brand">
-            <img src="/assets/logo.png" alt="MyNewHome Logo" className="footer-logo-image" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }} />
-            <h3 className="footer-logo fallback-text" style={{ display: 'none' }}>MyNewHome</h3>
             <p className="footer-text">
               Modern rental homes from owner in Punta Gorda and Port Charlotte. Redefining the leasing experience.
             </p>
@@ -35,7 +32,7 @@ const Footer = () => {
             <ul>
               <li className="contact-item">
                 <Phone size={18} />
-                <span>(941) 273-4666</span>
+                <a href="tel:+19412734666">(941) 273-4666</a>
               </li>
               <li className="contact-item">
                 <Mail size={18} />
