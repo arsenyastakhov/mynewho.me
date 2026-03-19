@@ -76,7 +76,7 @@ const TrustSection = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
-          <h2><span>Ready to </span><span>move in?</span></h2>
+          <h2>Ready to move in?</h2>
           <button className="btn-primary" onClick={() => window.open('https://my.innago.com/a/M2FX7knC5e7', '_blank', 'noopener,noreferrer')}>
             Apply Now
           </button>
