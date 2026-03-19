@@ -352,3 +352,38 @@
   height: 250px;
   background: rgba(190, 242, 100, 0.3); /* Pale green */
 }
+
+@media (max-width: 767px) {
+  .tour-layout {
+    gap: 1.5rem;
+  }
+
+  .tour-text h2 {
+    font-size: clamp(1.9rem, 10vw, 2.3rem);
+    line-height: 0.98;
+  }
+
+  .tour-subtitle {
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+    max-width: 30ch;
+  }
+
+  .step-item {
+    gap: 1rem;
+  }
+
+  .step-icon-wrapper {
+    width: 52px;
+    height: 52px;
+  }
+
+  .step-content h3 {
+    font-size: 1.1rem;
+  }
+
+  .tour-visual {
+    padding: 2rem 1rem 0;
+  }
+}

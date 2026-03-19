@@ -51,7 +51,7 @@ const Footer = () => {
         </div>
         
         <div className="footer-bottom">
-          <p className="footer-copyright">&copy; {new Date().getFullYear()} MyNewHome. All rights reserved. <span style={{opacity: 0.3, marginLeft: '1rem'}}>[ <a href="/admin" style={{textDecoration:'none'}}>Admin</a> ]</span></p>
+          <p className="footer-copyright">&copy; {new Date().getFullYear()} MyNewHome. All rights reserved.</p>
           <div className="legal-links">
             <Link to="/privacy-policy">Privacy Policy</Link>
             <Link to="/terms-of-service">Terms of Service</Link>

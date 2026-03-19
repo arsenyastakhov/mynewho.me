@@ -84,42 +84,48 @@ const ListingsSection = ({ searchFilters }) => {
             transition={{ duration: 0.5 }}
           >
             <div className="filter-scroll-container">
-              <span className="filter-label">City:</span>
-              <div className="filter-pill-group">
-                {cityOptions.map(option => (
-                  <button
-                    key={option}
-                    className={`filter-pill ${activeCity.includes(option) ? 'active' : ''}`}
-                    onClick={() => toggleCityFilter(option)}
-                  >
-                    {option}
-                  </button>
-                ))}
-              </div>
-              
-              <div style={{ width: '1px', height: '20px', background: 'var(--border-light)', margin: '0 0.5rem' }}></div>
-
-              <span className="filter-label">Beds:</span>
-              <div className="filter-pill-group">
-                {bedOptions.map(option => (
-                  <button
-                    key={'bed-' + option}
-                    className={`filter-pill ${activeBeds.includes(option) ? 'active' : ''}`}
-                    onClick={() => toggleBedFilter(option)}
-                  >
-                    {option} Beds
-                  </button>
-                ))}
+              <div className="filter-block">
+                <span className="filter-label">City</span>
+                <div className="filter-pill-group">
+                  {cityOptions.map(option => (
+                    <button
+                      key={option}
+                      className={`filter-pill ${activeCity.includes(option) ? 'active' : ''}`}
+                      onClick={() => toggleCityFilter(option)}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <div style={{ width: '1px', height: '20px', background: 'var(--border-light)', margin: '0 0.5rem' }}></div>
+              <div className="filter-divider" />
 
-              <button
-                className={`filter-pill ${showLeased ? 'active' : ''}`}
-                onClick={() => setShowLeased(!showLeased)}
-              >
-                Show Leased
-              </button>
+              <div className="filter-block">
+                <span className="filter-label">Beds</span>
+                <div className="filter-pill-group">
+                  {bedOptions.map(option => (
+                    <button
+                      key={'bed-' + option}
+                      className={`filter-pill ${activeBeds.includes(option) ? 'active' : ''}`}
+                      onClick={() => toggleBedFilter(option)}
+                    >
+                      {option} Beds
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="filter-divider" />
+
+              <div className="filter-block filter-block-toggle">
+                <button
+                  className={`filter-pill ${showLeased ? 'active' : ''}`}
+                  onClick={() => setShowLeased(!showLeased)}
+                >
+                  Show Leased
+                </button>
+              </div>
             </div>
             {/* The user specifically asked to remove the unused Filters button */}
           </motion.div>
